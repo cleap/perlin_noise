@@ -8,34 +8,38 @@
 extern crate rand;
 use rand::prelude::*;
 use rand::distributions::Standard;
-use std::ops::*;
 
 const GRID_SIZE : usize = 100;
 
 pub struct Perlin2D<T> {
-    gradient: [[T; GRID_SIZE]; GRID_SIZE]
+    gradient: [[[T; 2]; GRID_SIZE]; GRID_SIZE]
 }
 
 impl<T> Perlin2D<T> where T: Copy + From<f64>, Standard: Distribution<T>, f64: From<T> {
 
-    fn generate_gradient() -> [[T; GRID_SIZE]; GRID_SIZE] {
+    fn generate_gradient() -> [[[T; 2]; GRID_SIZE]; GRID_SIZE] {
         let mut rng = rand::thread_rng();
-        let mut gradient = [[rng.gen::<T>(); GRID_SIZE]; GRID_SIZE];
+        let mut gradient = [[[rng.gen::<T>(); 2]; GRID_SIZE]; GRID_SIZE];
         for x in 0..GRID_SIZE {
             for y in 0..GRID_SIZE {
-                grid[x][y] = rng.gen::<T>();
+                gradient[x][y][0] = rng.gen::<T>();
+                gradient[x][y][1] = rng.gen::<T>();
             }
         }
-        grid
+        gradient
     }
 
     fn lerp(a0: T, a1: T, w: f64) -> f64 {
         f64::from(a0) + w * (f64::from(a1) - f64::from(a0))
     }
 
-    fn dotGridGradient(&mut self, ix: usize, iy: usize, x: f64, y: f64) {
-        let val: f64 = f64.from(self.grid[ix][iy]);
-        // TODO
+    fn dot_grid_gradient(&mut self, ix: usize, iy: usize, x: f64, y: f64) -> f64 {
+        let val0: f64 = f64::from(self.gradient[ix][iy][0]);
+        let val1: f64 = f64::from(self.gradient[ix][iy][1]);
+        let dx: f64 = x - ix as f64;
+        let dy: f64 = y - iy as f64;
+
+        dx*val0 + dy*val1
     }
 
     pub fn new() -> Perlin2D<T> {
@@ -47,6 +51,6 @@ impl<T> Perlin2D<T> where T: Copy + From<f64>, Standard: Distribution<T>, f64: F
     pub fn get(&mut self, x: f64, y: f64) -> T {
         let x0: usize = x.floor() as usize;
         let y0: usize = y.floor() as usize;
-        self.grid[x0][y0]
+        self.gradient[x0][y0][0]
     }
 }
