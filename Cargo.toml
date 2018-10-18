@@ -1,0 +1,8 @@
+[package]
+name = "perlin_noise"
+version = "0.1.0"
+authors = ["cleap <cleapdev@gmail.com>"]
+
+[dependencies]
+piston_window = "0.70.0"
+rand = "0.5"
