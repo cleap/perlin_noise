@@ -29,8 +29,8 @@ impl<T> Perlin2D<T> where T: Copy + From<f64>, Standard: Distribution<T>, f64: F
         gradient
     }
 
-    fn lerp(a0: T, a1: T, w: f64) -> f64 {
-        f64::from(a0) + w * (f64::from(a1) - f64::from(a0))
+    fn lerp(a0: f64, a1: f64, w: f64) -> f64 {
+        a0 + w * (a1 - a0)
     }
 
     fn dot_grid_gradient(&mut self, ix: usize, iy: usize, x: f64, y: f64) -> f64 {
@@ -49,8 +49,24 @@ impl<T> Perlin2D<T> where T: Copy + From<f64>, Standard: Distribution<T>, f64: F
     }
 
     pub fn get(&mut self, x: f64, y: f64) -> T {
-        let x0: usize = x.floor() as usize;
-        let y0: usize = y.floor() as usize;
-        self.gradient[x0][y0][0]
+
+        // Determine cell coordinates
+        let x0: usize = x.floor() as usize % GRID_SIZE;
+        let x1: usize = x0 + 1;
+        let y0: usize = y.floor() as usize % GRID_SIZE;
+        let y1: usize = y0 + 1;
+
+        // Determine interpolation weights
+        let sx: f64 = x - x0 as f64;
+        let sy: f64 = y - y0 as f64;
+
+        // Interpolate between grid point gradients
+        let n0 = self.dot_grid_gradient(x0, y0, x, y);
+        let n1 = self.dot_grid_gradient(x1, y0, x, y);
+        let ix0 = Perlin2D::lerp(n0, n1, sx);
+        let n0 = self.dot_grid_gradient(x0, y1, x, y);
+        let n1 = self.dot_grid_gradient(x1, y1, x, y);
+        let ix1 = Perlin2D::lerp(n0, n1, sx);
+        T::from(Perlin2D::lerp(ix0, ix1, sy))
     }
 }

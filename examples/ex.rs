@@ -7,6 +7,8 @@ use piston_window::*;
 const   STEP : u32 = 10;
 const  WIDTH : u32 = 64;
 const HEIGHT : u32 = 48;
+const  SCALE : f64 = 0.2;
+const OFFSET : f64 = 0.17;
 
 fn main() {
 
@@ -22,10 +24,13 @@ fn main() {
 
             for x in 0..WIDTH {
                 for y in 0..HEIGHT {
-                    let gray = perlin.get(x as f64, y as f64) as f32;
+                    let gray = perlin.get(x as f64 * SCALE + OFFSET,
+                                          y as f64 * SCALE + OFFSET)
+                                          as f32 + 1. / 2.;
                     rectangle(
                         [gray, gray, gray, 1.0],
-                        [(x*STEP) as f64, (y*STEP) as f64, STEP as f64, STEP as f64],
+                        [(x*STEP) as f64, (y*STEP) as f64,
+                            STEP as f64, STEP as f64],
                         context.transform,
                         graphics);
                 }
